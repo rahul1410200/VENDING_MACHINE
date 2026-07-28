@@ -1,0 +1,209 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+
+
+module vending_machine(
+clk,reset,nickel,dime,quarter,item,change
+
+    );
+    
+    input clk,reset,nickel,dime,quarter;
+    output reg item;
+    output reg [7:0]change;
+    
+    reg [7:0] current_state,next_state;
+  //  reg [7:0]change_out;
+  
+    parameter dispense_state  = 8'd100;
+    
+    parameter nickel_val = 5 , dime_val = 10 , quarter_val = 25 , item_val = 50;
+    
+    parameter s0 = 0 , s1 = 5,s2 =10,s3=15,s4=20,s5=25,s6=30,s7=35,s8=40,s9=45,s10=50,s11 = 55,s12=60,s13=65,s14=70;
+    
+    
+    /// comb  = if input x remaingin item-input 
+    
+    always@(*) begin
+    
+    case(current_state)
+    
+    s0: begin
+    if(nickel)
+    next_state = s1;
+    else if(dime)
+    next_state =  s2;
+    else if(quarter)
+    next_state = s5;
+    else
+    next_state = s0;
+    end
+    
+    s1: begin
+    if(nickel)
+    next_state = s2;
+    else if(dime)
+    next_state =  s3;
+    else if(quarter)
+    next_state = s6;
+    else
+    next_state = s1;
+    end
+    
+    s2:begin
+    if(nickel)
+    next_state = s3;
+    else if(dime)
+    next_state =  s4;
+    else if(quarter)
+    next_state = s7;
+    else
+    next_state = s2;
+    
+    end
+    
+    s3:begin
+    if(nickel)
+    next_state = s4;
+    else if(dime)
+    next_state =  s5;
+    else if(quarter)
+    next_state = s8;
+    else
+    next_state = s3;
+    end
+    
+    s4:begin
+    if(nickel)
+    next_state = s5;
+    else if(dime)
+    next_state =  s6;
+    else if(quarter)
+    next_state = s9;
+    else
+    next_state = s4;
+    end
+        
+    s5:begin
+    if(nickel)
+    next_state = s6;
+    else if(dime)
+    next_state =  s7;
+    else if(quarter)
+    next_state = s10;
+    else
+    next_state = s5;
+    end
+    
+    
+    s6:begin
+    if(nickel)
+    next_state = s7;
+    else if(dime)
+    next_state =  s8;
+    else if(quarter)
+    next_state = s11;
+    else
+    next_state = s6;
+    end
+    
+    s7:begin
+    if(nickel)
+    next_state = s8;
+    else if(dime)
+    next_state =  s9;
+    else if(quarter)
+    next_state = s12;
+    else
+    next_state = s7;
+    end
+    
+    
+    s8:begin
+    if(nickel)
+    next_state = s9;
+    else if(dime)
+    next_state =  s10;
+    else if(quarter)
+    next_state = s13;
+    else
+    next_state = s8;
+    end
+    
+    
+    s9:begin
+    if(nickel)
+    next_state = s10;
+    else if(dime)
+    next_state =  s11;
+    else if(quarter)
+    next_state = s14;
+    else
+    next_state = s9;
+    end
+    
+    s10: begin
+    if(nickel || dime || quarter) 
+    next_state = dispense_state;
+    else
+    next_state = s10;
+    
+    
+    end
+    
+    dispense_state: begin
+    
+    next_state = s0;
+    
+    end
+    
+    default:next_state = current_state;
+ 
+    endcase
+    
+
+    end
+    
+    
+    
+    always@(posedge clk or posedge reset) begin
+    
+    if(reset) begin
+    current_state <= 8'd0;
+    item <= 0;
+    change <= 0;
+    
+    end
+    
+   else begin
+    current_state <= next_state;
+    end
+
+    end
+    
+    
+    
+    
+    
+   always@(*) begin
+   
+   item = 1'b0;
+   change = 1'b0;
+   
+   case(current_state)
+   
+   s10,s11,s12,s13,s14: begin
+   item = 1'b1;
+   change = current_state - s10;
+   end
+   
+   dispense_state: begin
+   item = 1'b0;
+   change = 8'd0;
+   end
+   
+   endcase
+
+   end
+
+endmodule
